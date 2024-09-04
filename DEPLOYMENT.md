@@ -10,7 +10,7 @@ By default, Swagger page does not contain authentication section in the header, 
 dotnet add package Swashbuckle.AspNetCore.Filters
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Bearer token authentication",
         Name = "Authentication",
