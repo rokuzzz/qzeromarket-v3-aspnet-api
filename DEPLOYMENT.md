@@ -58,7 +58,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 
 ### Enhance EF Core
 
-- Use `AsNoTracking()` for the `Select` operations, ilimiating the needs to change tracker in EF Core. Example
+- Use `AsNoTracking()` for the `Select` operations, iliminating the needs to change tracker in EF Core. Example
 
 ```csharp
 public override async Task<ProductLine?> GetByIdAsync(Guid id)
