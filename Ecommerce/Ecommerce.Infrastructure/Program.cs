@@ -89,7 +89,13 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     });
 
     // Database
-    var dataSourceBuilder = new NpgsqlDataSourceBuilder(configuration.GetConnectionString("Localhost"));
+    var connectionString = configuration.GetConnectionString("NeonDatabase");
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new InvalidOperationException("Neon database connection string is not configured.");
+    }
+
+    var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
     var dataSource = dataSourceBuilder.Build();
     services.AddDbContext<EcommerceContext>(options =>
         options.UseNpgsql(dataSource).UseSnakeCaseNamingConvention());

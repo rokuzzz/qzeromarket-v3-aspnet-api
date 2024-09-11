@@ -8,3 +8,5 @@ bin
 
 **/wwwroot/*
 !**/wwwroot/.gitkeep
+
+teamwork_cicd/
