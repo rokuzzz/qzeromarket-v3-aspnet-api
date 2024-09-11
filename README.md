@@ -61,6 +61,8 @@ Ecommerce/
     Ecommerce.sln
     Ecommerce.Tests/
 README.md
+teamwork_cicd/
+    docker-compose.local.yml
 ```
 
 ### Layers and Entities
