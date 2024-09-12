@@ -252,6 +252,7 @@ void Configure(WebApplication app, IHostEnvironment env)
         });
     }
 
+    app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
     app.UseHttpsRedirection();
     app.UseStaticFiles();
     app.UseMiddleware<ExceptionHandlerMiddleware>();
