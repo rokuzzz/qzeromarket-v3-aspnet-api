@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Ecommerce.Domain.Interfaces;
 using FluentValidation;
 

@@ -8,11 +8,11 @@ using FluentValidation.Results;
 using Ecommerce.Services.Common;
 using Microsoft.AspNetCore.Authorization;
 using Ecommerce.Domain.Interfaces;
+using System.Security.Claims;
 
 namespace Ecommerce.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Admin")]
     [Route("api/v1/users")]
     [SwaggerTag("Read, update and delete users")]
     public class UserController(IUserService userService, IAuthorizationService authorizationService, IUserRepo userRepo) : AppController<User, UserFilterOptions, GetUserDto>(userService)
@@ -22,6 +22,7 @@ namespace Ecommerce.Controllers
         private readonly IUserRepo _userRepo = userRepo;
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         [Produces("application/json")]
         [SwaggerOperation(Summary = "Get a list of users", Description = "Permission: Admin")]
         [SwaggerResponse(200, "The users were fetched successfully", typeof(PaginatedResult<User, GetUserDto>))]
@@ -32,6 +33,7 @@ namespace Ecommerce.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
         [Produces("application/json")]
         [SwaggerOperation(Summary = "Get a user by id", Description = "Permission: Admin")]
         [SwaggerResponse(200, "The user was fetched successfully", typeof(GetUserDto))]
@@ -42,7 +44,31 @@ namespace Ecommerce.Controllers
             return await base.GetItem(id);
         }
 
+        [HttpGet("me")]
+        [Authorize]
+        [Produces("application/json")]
+        [SwaggerOperation(Summary = "Get the current user's data", Description = "Permission: Any authenticated user")]
+        [SwaggerResponse(200, "The user data was fetched successfully", typeof(GetUserDto))]
+        [SwaggerResponse(404, "The user was not found", typeof(ProblemDetails))]
+        public async Task<ActionResult<GetUserDto>> GetCurrentUser()
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out int id))
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userService.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound(new ProblemDetails { Title = "User not found" });
+            }
+
+            return Ok(user);
+        }
+
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         [Produces("application/json")]
         [SwaggerOperation(Summary = "Update an existing user", Description = "Permission: Admin or owner of the user")]
         [SwaggerResponse(200, "The user was updated successfully", typeof(GetUserDto))]
@@ -70,6 +96,7 @@ namespace Ecommerce.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize]
         [Produces("application/json")]
         [SwaggerOperation(Summary = "Partially update an existing user", Description = "Permission: Admin")]
         [SwaggerResponse(200, "The user was updated successfully", typeof(GetUserDto))]
@@ -89,6 +116,7 @@ namespace Ecommerce.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         [SwaggerOperation(Summary = "Delete a user by id", Description = "Permission: Admin")]
         [SwaggerResponse(204, "The user was deleted successfully")]
         [SwaggerResponse(403, "Forbidden", typeof(ProblemDetails))]
