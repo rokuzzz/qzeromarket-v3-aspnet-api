@@ -21,7 +21,7 @@ namespace Ecommerce.Infrastructure.Services
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
 				Subject = GenerateClaims(tokenOptions),
-				Expires = DateTime.UtcNow.AddMinutes(15),
+				Expires = DateTime.UtcNow.AddDays(7),
 				SigningCredentials = credentials,
 			};
 

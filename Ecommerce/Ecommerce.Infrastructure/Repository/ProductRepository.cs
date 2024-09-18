@@ -13,19 +13,24 @@ namespace Ecommerce.Infrastructure.Repository
 
         public async Task<int> CountAsync(ProductFilterOptions filteringOptions)
         {
-            string query;
-            object[] parameters;
-
-            {
-                query = "SELECT * FROM count_products()";
-                parameters = [];
-            }
-
+            string query = "SELECT * FROM count_products()";
             var count = await _context.Database
-                .SqlQueryRaw<int>(query, parameters)
+                .SqlQueryRaw<int>(query)
                 .ToListAsync();
 
-            return count.FirstOrDefault();
+            var totalCount = count.FirstOrDefault();
+
+            if (filteringOptions?.CategoryId.HasValue == true)
+            {
+                // If CategoryId filter is applied, we need to count only the products in that category
+                var productsInCategory = await _context.Products
+                    .Where(p => p.CategoryId == filteringOptions.CategoryId.Value)
+                    .CountAsync();
+
+                return productsInCategory;
+            }
+
+            return totalCount;
         }
 
         public async Task<bool> DeleteByIdAsync(int id)
@@ -45,13 +50,23 @@ namespace Ecommerce.Infrastructure.Repository
 
         public async Task<IEnumerable<Product>> GetAllAsync(ProductFilterOptions filteringOptions)
         {
-            var page = filteringOptions.Page ?? 1;
-            var perPage = filteringOptions.PerPage ?? 10;
-            return await _context
-                .GetProducts(page, perPage)
-                    .Include(p => p.ProductImages)
-                    .OrderBy(p => p.Id)
-                    .ToListAsync();
+            int perPage = filteringOptions?.PerPage ?? 10;
+            int page = filteringOptions?.Page ?? 1;
+
+            IQueryable<Product> query = _context.Products.Include(p => p.ProductImages);
+
+            if (filteringOptions?.CategoryId.HasValue == true)
+            {
+                query = query.Where(p => p.CategoryId == filteringOptions.CategoryId.Value);
+            }
+
+            var products = await query
+                .OrderBy(p => p.Id)
+                .Skip(perPage * (page - 1))
+                .Take(perPage)
+                .ToListAsync();
+
+            return products;
         }
 
         public async Task<Product> GetByIdAsync(int id)
