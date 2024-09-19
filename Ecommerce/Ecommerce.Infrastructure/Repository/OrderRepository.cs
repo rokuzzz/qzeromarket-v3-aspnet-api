@@ -11,10 +11,19 @@ namespace Ecommerce.Infrastructure.Repository
     public class OrderRepository(EcommerceContext context) : IOrderRepo
     {
         private readonly EcommerceContext _context = context;
+        
         public async Task<int> CountAsync(OrderFilterOptions filteringOptions)
         {
-            return await _context.Orders.CountAsync();
+            IQueryable<Order> query = _context.Orders;
+
+            if (filteringOptions.UserId.HasValue)
+            {
+                query = query.Where(o => o.UserId == filteringOptions.UserId.Value);
+            }
+
+            return await query.CountAsync();
         }
+
 
         public async Task<Order> CreateAsync(Order entity)
         {
@@ -53,14 +62,23 @@ namespace Ecommerce.Infrastructure.Repository
         {
             int perPage = filteringOptions.PerPage ?? 10;
             int page = filteringOptions.Page ?? 1;
-            var result = _context.Orders
-            .Include(o => o.OrderItems)
-            .Skip((page - 1) * perPage)
-            .Take(perPage)
-            .ToListAsync();
 
-            return await result;
+            IQueryable<Order> query = _context.Orders
+                .Include(o => o.OrderItems);
+
+            if (filteringOptions.UserId.HasValue)
+            {
+                query = query.Where(o => o.UserId == filteringOptions.UserId.Value);
+            }
+
+            var result = await query
+                .Skip((page - 1) * perPage)
+                .Take(perPage)
+                .ToListAsync();
+
+            return result;
         }
+
 
         public async Task<Order> GetByIdAsync(int id)
         {
