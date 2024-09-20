@@ -59,6 +59,17 @@ app.Run();
 
 void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
+    // CORS configuration
+    services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+    });
+
     // Controllers and Routing
     services.AddControllers().AddJsonOptions(options =>
     {
@@ -242,6 +253,9 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
 void Configure(WebApplication app, IHostEnvironment env)
 {
+    // Use CORS before other middleware
+    app.UseCors();
+
     if (env.IsDevelopment())
     {
         app.UseSwagger();
@@ -252,9 +266,11 @@ void Configure(WebApplication app, IHostEnvironment env)
         });
     }
 
-    app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
     app.UseHttpsRedirection();
     app.UseStaticFiles();
+    app.UseRouting();
+    app.UseAuthentication();
+    app.UseAuthorization();
     app.UseMiddleware<ExceptionHandlerMiddleware>();
     app.MapControllers();
 }
