@@ -256,15 +256,12 @@ void Configure(WebApplication app, IHostEnvironment env)
     // Use CORS before other middleware
     app.UseCors();
 
-    if (env.IsDevelopment())
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
     {
-        app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-            options.RoutePrefix = string.Empty;
-        });
-    }
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        options.RoutePrefix = string.Empty;
+    });
 
     app.UseHttpsRedirection();
     app.UseStaticFiles();

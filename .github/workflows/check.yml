@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x' # or '7.0.x' if 8.0 is unavailable
-          include-prerelease: true # Include this if using a preview version
 
       - name: Cache NuGet packages
         uses: actions/cache@v3
