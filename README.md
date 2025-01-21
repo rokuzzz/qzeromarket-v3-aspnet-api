@@ -199,7 +199,7 @@ API documentation is available at `http://localhost:5169/index.html`.
 [The API Design prototype](docs/README.md) is also available in the repository.
 
 ## Deployment link
-[Click me](https://romankuzero-ecommerce-web-api.azurewebsites.net/)
+[Click me](https://qzm-api-prod.azurewebsites.net/index.html)
 
 ## Contributors:
 
